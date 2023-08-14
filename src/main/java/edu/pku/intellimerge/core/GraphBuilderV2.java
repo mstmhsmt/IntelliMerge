@@ -147,6 +147,26 @@ public class GraphBuilderV2 implements Callable<Graph<SemanticNode, SemanticEdge
   }
 
   /**
+   * Only analyze a given list of files
+   *
+   * @param targetDir
+   * @param fileRelativePaths
+   * @param side
+   */
+  public GraphBuilderV2(String targetDir, List<String> fileRelativePaths, Side side) {
+    this.mergeScenario = null;
+    this.side = side;
+    this.targetDir = targetDir;
+    this.hasMultiModule = false;
+    this.fileRelativePaths = fileRelativePaths;
+
+    this.sideDir = targetDir + File.separator;
+    this.graph = initGraph();
+    this.nodeCount = 0;
+    this.nodeCount = 0;
+  }
+
+  /**
    * Build and initialize an empty Graph
    *
    * @return
@@ -1050,12 +1070,13 @@ public class GraphBuilderV2 implements Callable<Graph<SemanticNode, SemanticEdge
     String tdCodeNoComment =
         td.removeComment().getTokenRange().map(TokenRange::toString).orElse("");
     if (tdCodeNoComment.length() > 0) {
-      String tdCodeNoAnnotation =
-          tdCodeNoComment.substring(tdCodeNoComment.indexOf(originalSignature));
-      int i = tdCodeNoAnnotation.indexOf("{");
-      if (i > 0) {
-        return tdCodeNoAnnotation.substring(
-            tdCodeNoAnnotation.indexOf(originalSignature) + originalSignature.length(), i);
+      int i0 = tdCodeNoComment.indexOf(originalSignature);
+      if (i0 >= 0) {
+        String tdCodeNoAnnotation = tdCodeNoComment.substring(i0);
+        int i = tdCodeNoAnnotation.indexOf("{");
+        if (i > 0) {
+          return tdCodeNoAnnotation.substring(tdCodeNoAnnotation.indexOf(originalSignature) + originalSignature.length(), i);
+        }
       }
     }
     return "";

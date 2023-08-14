@@ -65,7 +65,10 @@ public class GitService {
     File folder = new File(repoPath);
     Repository repository;
     RepositoryBuilder builder = new RepositoryBuilder();
-    repository = builder.setGitDir(new File(folder, ".git")).readEnvironment().findGitDir().build();
+    File folder_git = new File(folder, ".git");
+    if (!folder_git.exists())
+      folder_git = folder;
+    repository = builder.setGitDir(folder_git).readEnvironment().findGitDir().build();
 
     logger.info(
         "Repository: {} current branch: {}",
@@ -96,6 +99,16 @@ public class GitService {
           }
         }
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  public static boolean checkIfCommitValid(String repoPath, String commit) {
+    try {
+      Repository repository = createRepository(repoPath);
+      return repository.getObjectDatabase().has(ObjectId.fromString(commit));
     } catch (Exception e) {
       e.printStackTrace();
     }

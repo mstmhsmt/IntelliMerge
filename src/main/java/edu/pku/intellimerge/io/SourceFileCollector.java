@@ -63,6 +63,19 @@ public class SourceFileCollector {
     this.copyImportedFiles = false;
   }
 
+  public SourceFileCollector(String repoPath,
+                             String oursCommitID, String baseCommitID, String theirsCommitID,
+                             String collectedDir) {
+    try {
+      this.repository = GitService.createRepository(repoPath);
+      this.mergeScenario = generateMergeScenarioFromCommits(oursCommitID, baseCommitID, theirsCommitID);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    this.collectedFilePath = collectedDir;
+    this.copyImportedFiles = false;
+  }
+
   /**
    * Get commit ids at the HEAD of the parent branches, and their base commit id
    *
@@ -76,6 +89,16 @@ public class SourceFileCollector {
       String theirsCommitID = GitService.getHEADCommit(repository, branchNames.get(1));
       String baseCommitID = GitService.getBASECommit(repository, oursCommitID, theirsCommitID);
 
+      MergeScenario mergeScenario = new MergeScenario(oursCommitID, baseCommitID, theirsCommitID);
+      return mergeScenario;
+    } else {
+      return null;
+    }
+  }
+
+  private MergeScenario generateMergeScenarioFromCommits(String oursCommitID, String baseCommitID, String theirsCommitID)
+      throws Exception {
+    if (repository != null) {
       MergeScenario mergeScenario = new MergeScenario(oursCommitID, baseCommitID, theirsCommitID);
       return mergeScenario;
     } else {
